@@ -1,8 +1,7 @@
-let html5QrCode;
+let html5QrCode = null;
 
 
 function startScanner() {
-
 
     document.getElementById("status").innerHTML =
         "Starting camera...";
@@ -26,33 +25,30 @@ function startScanner() {
         function(decodedText) {
 
 
-            console.log(decodedText);
+            console.log("QR:", decodedText);
 
 
-            let studentData = decodedText.split("-");
+            let data = decodedText.split("-");
 
 
             document.getElementById("studentID").innerHTML =
-                studentData[0] || "Unknown";
+                data[0] || "Unknown";
 
 
             document.getElementById("studentName").innerHTML =
-                studentData[1] || "Unknown";
+                data[1] || "Unknown";
 
 
             document.getElementById("attendanceStatus").innerHTML =
                 "Present";
 
 
-            let now = new Date();
-
-
             document.getElementById("scanTime").innerHTML =
-                now.toLocaleString();
+                new Date().toLocaleString();
 
 
             document.getElementById("status").innerHTML =
-                "Scan Successful";
+                "Attendance Recorded";
 
 
         },
@@ -60,16 +56,18 @@ function startScanner() {
 
         function(errorMessage) {
 
-            // scanning errors ignored
+            // ignore scanning errors
 
         }
 
     )
 
-    .catch(function(error){
+    .catch(function(error) {
+
 
         document.getElementById("status").innerHTML =
             "Camera Error: " + error;
+
 
     });
 
@@ -79,15 +77,15 @@ function startScanner() {
 
 
 
-function stopScanner(){
+function stopScanner() {
 
 
-    if(html5QrCode){
+    if(html5QrCode) {
 
 
         html5QrCode.stop()
 
-        .then(function(){
+        .then(function() {
 
 
             html5QrCode.clear();
@@ -99,7 +97,7 @@ function stopScanner(){
 
         })
 
-        .catch(function(error){
+        .catch(function(error) {
 
 
             console.log(error);
