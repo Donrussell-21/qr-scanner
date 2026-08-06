@@ -1,145 +1,74 @@
-let html5QrCode;
+let html5QrCode = null;
+
 
 function startScanner() {
 
     document.getElementById("scanMessage").innerHTML =
-        "Starting camera...";
+    "Opening camera...";
 
 
-    html5QrCode = new Html5Qrcode("reader");
+    Html5Qrcode.getCameras()
+    .then(cameras => {
 
 
-    const config = {
-        fps: 10,
-        qrbox: {
-            width: 250,
-            height: 250
-        }
-    };
+        if (cameras && cameras.length) {
 
 
-    html5QrCode.start(
+            // Select first available laptop camera
+            let cameraId = cameras[0].id;
 
-        {
-            facingMode: "environment"
-        },
 
-        config,
+            html5QrCode = new Html5Qrcode("reader");
 
 
-        qrCodeMessage => {
+            html5QrCode.start(
 
-            console.log("QR Code:", qrCodeMessage);
+                cameraId,
 
+                {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    }
+                },
 
-            document.getElementById("scanMessage").innerHTML =
-            `
-            <div class="student-info">
-                <p><strong>QR Data:</strong> ${qrCodeMessage}</p>
-            </div>
-            `;
 
+                qrCodeMessage => {
 
-            // Stop scanner after successful scan
-            stopScanner();
 
+                    console.log("QR Result:", qrCodeMessage);
 
-            // Send QR ID to Google Apps Script
-            checkStudent(qrCodeMessage);
 
-        },
+                    document.getElementById("scanMessage").innerHTML =
 
+                    `
+                    <div class="student-info">
 
-        errorMessage => {
+                    <p><strong>QR Code:</strong> ${qrCodeMessage}</p>
 
-            // Ignore continuous scan errors
+                    </div>
+                    `;
 
-        }
 
-    )
+                    stopScanner();
 
-    .catch(err => {
 
-        console.error(err);
+                    // Send QR ID to Google Script
+                    checkStudent(qrCodeMessage);
 
-        document.getElementById("scanMessage").innerHTML =
-        `
-        <div class="error">
-        Camera error: ${err}
-        </div>
-        `;
 
-    });
+                },
 
-}
 
+                errorMessage => {
 
+                    // Ignore scanning errors
 
-function stopScanner() {
+                }
 
 
-    if(html5QrCode){
-
-        html5QrCode.stop()
-
-        .then(() => {
-
-            html5QrCode.clear();
-
-            console.log("Scanner stopped");
-
-        })
-
-        .catch(err => {
-
-            console.log(err);
-
-        });
-
-    }
-
-}
-
-
-
-
-function checkStudent(studentID){
-
-
-    const url =
-    "YOUR_GOOGLE_SCRIPT_WEB_APP_URL?id="
-    + encodeURIComponent(studentID);
-
-
-
-    fetch(url)
-
-    .then(response => response.json())
-
-    .then(data => {
-
-
-        console.log(data);
-
-
-        if(data.found){
-
-
-            document.getElementById("scanMessage").innerHTML =
-
-            `
-            <div class="student-info">
-
-            <p><strong>Name:</strong> ${data.name}</p>
-
-            <p><strong>ID:</strong> ${data.id}</p>
-
-            <p class="success">
-            Attendance Recorded
-            </p>
-
-            </div>
-            `;
+            );
 
 
         }
@@ -148,14 +77,7 @@ function checkStudent(studentID){
 
 
             document.getElementById("scanMessage").innerHTML =
-
-            `
-            <div class="error">
-
-            Student ID not found
-
-            </div>
-            `;
+            "No camera detected";
 
 
         }
@@ -164,11 +86,68 @@ function checkStudent(studentID){
     })
 
 
-    .catch(error=>{
+    .catch(err => {
 
-        console.error(error);
+
+        console.error(err);
+
+
+        document.getElementById("scanMessage").innerHTML =
+
+        `
+        <div class="error">
+        Camera Error: ${err}
+        </div>
+        `;
+
 
     });
+
+
+}
+
+
+
+function stopScanner(){
+
+
+    if(html5QrCode){
+
+
+        html5QrCode.stop()
+
+        .then(()=>{
+
+
+            html5QrCode.clear();
+
+
+        })
+
+        .catch(err=>{
+
+
+            console.log(err);
+
+
+        });
+
+
+    }
+
+
+}
+
+
+
+function checkStudent(studentID){
+
+
+    console.log("Student ID:", studentID);
+
+
+    // temporary display only
+    // connect Google Apps Script here later
 
 
 }
