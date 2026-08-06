@@ -1,56 +1,38 @@
 let html5QrCode = null;
 
-// =======================
-// START SCANNER
-// =======================
 function startScanner() {
 
-    document.getElementById("result").innerHTML =
-        "Starting camera...";
-
-    // Prevent multiple instances
-    if (html5QrCode) {
-        stopScanner();
-    }
+    document.getElementById("result").innerHTML = "Starting camera...";
 
     html5QrCode = new Html5Qrcode("reader");
 
     Html5Qrcode.getCameras()
         .then(cameras => {
 
-            if (!cameras || cameras.length === 0) {
+            if (cameras.length === 0) {
                 document.getElementById("result").innerHTML =
-                    "<span class='error'>No camera detected.</span>";
+                    "No camera found.";
                 return;
             }
 
-            // Use the first available camera (works on laptops)
-            const cameraId = cameras[0].id;
-
-            html5QrCode.start(
-                cameraId,
+            return html5QrCode.start(
+                cameras[0].id,
                 {
                     fps: 10,
-                    qrbox: {
-                        width: 250,
-                        height: 250
-                    }
+                    qrbox: 250
                 },
 
-                // QR Success
                 function (decodedText) {
 
                     stopScanner();
-
-                    document.getElementById("result").innerHTML =
-                        "Checking student...";
 
                     checkStudent(decodedText);
 
                 },
 
-                // Ignore scan errors
-                function () { }
+                function () {
+                    // Ignore scan errors
+                }
 
             );
 
@@ -61,16 +43,12 @@ function startScanner() {
             console.error(err);
 
             document.getElementById("result").innerHTML =
-                "<span class='error'>Camera Error:<br>" + err + "</span>";
+                "Camera Error: " + err;
 
         });
 
 }
 
-
-// =======================
-// STOP SCANNER
-// =======================
 function stopScanner() {
 
     if (html5QrCode) {
@@ -85,61 +63,47 @@ function stopScanner() {
 
             })
 
-            .catch(err => {
-
-                console.log(err);
-
-            });
+            .catch(console.error);
 
     }
 
 }
 
-
-// =======================
-// CHECK STUDENT
-// =======================
 function checkStudent(studentID) {
 
-    const url =
+    fetch(
         "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec?id="
-        + encodeURIComponent(studentID);
+        + encodeURIComponent(studentID)
+    )
 
-    fetch(url)
+    .then(res => res.json())
 
-        .then(response => response.json())
+    .then(data => {
 
-        .then(data => {
+        if (data.found) {
 
-            if (data.found) {
+            document.getElementById("result").innerHTML = `
+                <h3>${data.name}</h3>
+                <p>${data.id}</p>
+                <p style="color:green;">Attendance Recorded</p>
+            `;
 
-                document.getElementById("result").innerHTML = `
-                    <div class="student-info">
-                        <p><strong>Name:</strong> ${data.name}</p>
-                        <p><strong>ID:</strong> ${data.id}</p>
-                        <p class="success">Attendance Recorded</p>
-                    </div>
-                `;
-
-            } else {
-
-                document.getElementById("result").innerHTML = `
-                    <div class="error">
-                        Student not found.
-                    </div>
-                `;
-
-            }
-
-        })
-
-        .catch(error => {
-
-            console.error(error);
+        } else {
 
             document.getElementById("result").innerHTML =
-                "<span class='error'>Unable to contact server.</span>";
+                "Student not found.";
 
-        });
+        }
+
+    })
+
+    .catch(err => {
+
+        console.error(err);
+
+        document.getElementById("result").innerHTML =
+            "Unable to connect.";
+
+    });
 
 }
