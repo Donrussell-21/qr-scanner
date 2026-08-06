@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -18,36 +19,72 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <h1>
-        <i class="bi bi-qr-code-scan"></i>
-        QR Attendance Scanner
-    </h1>
+        <h1>
+            <i class="bi bi-qr-code-scan"></i>
+            QR Attendance Scanner
+        </h1>
 
-    <p class="subtitle">
-        Scan your QR Code to record attendance
-    </p>
+        <p class="subtitle">
+            Scan your QR Code to record attendance
+        </p>
 
-    <div id="reader"></div>
+        <div id="reader"></div>
 
-    <button id="startBtn" onclick="startScanner()">
-        <i class="bi bi-camera"></i>
-        Start Scanner
-    </button>
+        <div class="buttons">
 
-    <button id="stopBtn" onclick="stopScanner()">
-        <i class="bi bi-stop-circle"></i>
-        Stop Scanner
-    </button>
+            <button id="startBtn" onclick="startScanner()">
+                <i class="bi bi-camera-fill"></i>
+                Start Scanner
+            </button>
 
-    <div id="result">
-        Waiting for QR scan...
+            <button id="stopBtn" onclick="stopScanner()">
+                <i class="bi bi-stop-circle-fill"></i>
+                Stop Scanner
+            </button>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Attendance Information</h2>
+
+            <table>
+
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td id="status">Waiting for QR scan...</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Student ID</strong></td>
+                    <td id="studentID">-</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td id="studentName">-</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Attendance</strong></td>
+                    <td id="attendanceStatus">-</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Time</strong></td>
+                    <td id="scanTime">-</td>
+                </tr>
+
+            </table>
+
+        </div>
+
     </div>
 
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
+
 </html>
