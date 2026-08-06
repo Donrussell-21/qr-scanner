@@ -23,55 +23,29 @@ function startScanner() {
         },
 
         // QR Scan Success
-        function (decodedText, decodedResult) {
+       .then(function (student) {
 
-            console.log("Scanned:", decodedText);
+    console.log(student);
 
-            document.getElementById("status").innerHTML = "Checking database...";
+    if (student.found) {
 
-            fetch(databaseURL + "?id=" + encodeURIComponent(decodedText))
-                .then(function (response) {
+        document.getElementById("studentID").innerHTML = student.id;
+        document.getElementById("studentName").innerHTML = student.name;
+        document.getElementById("attendanceStatus").innerHTML = "Present";
+        document.getElementById("scanTime").innerHTML = new Date().toLocaleString();
+        document.getElementById("status").innerHTML = "Attendance Recorded Successfully";
 
-                    console.log("HTTP Status:", response.status);
+    } else {
 
-                    if (!response.ok) {
-                        throw new Error("Server Error: " + response.status);
-                    }
+        document.getElementById("studentID").innerHTML = decodedText;
+        document.getElementById("studentName").innerHTML = "Student Not Found";
+        document.getElementById("attendanceStatus").innerHTML = "Invalid";
+        document.getElementById("scanTime").innerHTML = "";
+        document.getElementById("status").innerHTML = "Student Not Found";
 
-                    return response.json();
-                })
+    }
 
-                .then(function (student) {
-
-                    console.log(student);
-
-                    if (student.found) {
-
-                        document.getElementById("studentID").innerHTML = student.id;
-                        document.getElementById("studentName").innerHTML = student.name;
-                        document.getElementById("attendanceStatus").innerHTML = "Present";
-                        document.getElementById("scanTime").innerHTML = new Date().toLocaleString();
-                        document.getElementById("status").innerHTML = "Attendance Recorded Successfully";
-
-                    } else {
-
-                        document.getElementById("studentID").innerHTML = decodedText;
-                        document.getElementById("studentName").innerHTML = "Student Not Found";
-                        document.getElementById("attendanceStatus").innerHTML = "Invalid";
-                        document.getElementById("scanTime").innerHTML = "";
-                        document.getElementById("status").innerHTML = "Student Not Found";
-
-                    }
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-                    document.getElementById("status").innerHTML = "Database Connection Error";
-
-                });
+})
 
         },
 
