@@ -71,39 +71,47 @@ function stopScanner() {
 
 function checkStudent(studentID) {
 
-    fetch(
-        "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec?id="
-        + encodeURIComponent(studentID)
-    )
+    const url =
+    "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec?id="
+    + encodeURIComponent(studentID);
 
-    .then(res => res.json())
+    console.log("Request URL:", url);
 
-    .then(data => {
+    fetch(url)
+        .then(response => {
+            console.log("HTTP Status:", response.status);
+            return response.text();
+        })
+        .then(text => {
 
-        if (data.found) {
+            console.log("Server Response:", text);
+
+            const data = JSON.parse(text);
+
+            if(data.found){
+
+                document.getElementById("result").innerHTML = `
+                    <h3>${data.name}</h3>
+                    <p>${data.id}</p>
+                    <p style="color:green;">Attendance Recorded</p>
+                `;
+
+            }else{
+
+                document.getElementById("result").innerHTML =
+                    "Student not found.";
+
+            }
+
+        })
+        .catch(error => {
+
+            console.error("Fetch Error:", error);
 
             document.getElementById("result").innerHTML = `
-                <h3>${data.name}</h3>
-                <p>${data.id}</p>
-                <p style="color:green;">Attendance Recorded</p>
+                <pre>${error}</pre>
             `;
 
-        } else {
-
-            document.getElementById("result").innerHTML =
-                "Student not found.";
-
-        }
-
-    })
-
-    .catch(err => {
-
-        console.error(err);
-
-        document.getElementById("result").innerHTML =
-            "Unable to connect.";
-
-    });
+        });
 
 }
