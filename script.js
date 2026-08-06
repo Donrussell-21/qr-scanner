@@ -1,13 +1,11 @@
 let html5QrCode = null;
 
 
-// YOUR GOOGLE APPS SCRIPT URL
 const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec";
 
 
 
 function startScanner() {
-
 
     document.getElementById("status").innerHTML =
         "Starting camera...";
@@ -16,13 +14,11 @@ function startScanner() {
     html5QrCode = new Html5Qrcode("reader");
 
 
-
     html5QrCode.start(
 
         {
             facingMode: "environment"
         },
-
 
         {
             fps: 10,
@@ -33,11 +29,9 @@ function startScanner() {
         function(decodedText) {
 
 
-            console.log("QR ID:", decodedText);
+            console.log("Scanned ID:", decodedText);
 
 
-
-            // Search student in Google Sheet
 
             fetch(databaseURL + "?id=" + decodedText)
 
@@ -46,6 +40,9 @@ function startScanner() {
 
 
             .then(student => {
+
+
+                console.log(student);
 
 
 
@@ -60,15 +57,12 @@ function startScanner() {
                         student.name;
 
 
-
                     document.getElementById("attendanceStatus").innerHTML =
                         "Present";
 
 
-
                     document.getElementById("scanTime").innerHTML =
                         new Date().toLocaleString();
-
 
 
                     document.getElementById("status").innerHTML =
@@ -95,7 +89,6 @@ function startScanner() {
                 }
 
 
-
             })
 
 
@@ -106,39 +99,29 @@ function startScanner() {
 
 
                 document.getElementById("status").innerHTML =
-                    "Database Error";
+                    "Database Connection Error";
 
 
             });
 
 
 
-        },
-
-
-        function(errorMessage){
-
-            // Ignore scanning errors
-
         }
+
 
     )
 
-
-    .catch(function(error){
+    .catch(error => {
 
 
         document.getElementById("status").innerHTML =
-            "Camera Error: " + error;
+            "Camera Error";
 
 
     });
 
 
-
 }
-
-
 
 
 
@@ -150,8 +133,7 @@ function stopScanner(){
 
         html5QrCode.stop()
 
-
-        .then(() => {
+        .then(()=>{
 
 
             html5QrCode.clear();
@@ -162,7 +144,6 @@ function stopScanner(){
 
 
         });
-
 
 
     }
