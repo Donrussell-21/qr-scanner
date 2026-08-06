@@ -15,16 +15,14 @@ function startScanner() {
 
 
     html5QrCode.start(
-
-        {
-            facingMode: "environment"
-        },
-
-        {
-            fps: 20,
-            qrbox: { width: 300, height: 300 },
-            aspectRatio: 1.0
-        },
+    { facingMode: { exact: "environment" } },
+    {
+        fps: 30,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+    },
+    qrCodeSuccess
+);
 
 
         function(decodedText) {
