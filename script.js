@@ -1,12 +1,17 @@
 let html5QrCode = null;
+let scannerRunning = false;
 
 const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec";
 
 function startScanner() {
 
+    if (scannerRunning) {
+        return;
+    }
+
     document.getElementById("status").innerHTML = "Starting camera...";
 
-    if (html5QrCode === null) {
+    if (!html5QrCode) {
         html5QrCode = new Html5Qrcode("reader");
     }
 
@@ -16,83 +21,72 @@ function startScanner() {
         },
         {
             fps: 10,
-            qrbox: {
-                width: 250,
-                height: 250
-            }
+            qrbox: 250
         },
-
-        // QR Code Successfully Scanned
-        function (decodedText) {
-
-            // Stop scanning to avoid multiple scans
-            html5QrCode.stop();
-
-            document.getElementById("status").innerHTML = "Checking database...";
-
-            console.log("Scanned QR:", decodedText);
-
-            fetch(databaseURL + "?id=" + encodeURIComponent(decodedText))
-                .then(function (response) {
-
-                    if (!response.ok) {
-                        throw new Error("Server Error");
-                    }
-
-                    return response.json();
-
-                })
-                .then(function (student) {
-
-                    console.log(student);
-
-                    if (student.found) {
-
-                        document.getElementById("studentID").innerHTML = student.id;
-                        document.getElementById("studentName").innerHTML = student.name;
-                        document.getElementById("studentGrade").innerHTML = student.grade;
-                        document.getElementById("attendanceStatus").innerHTML = "Present";
-                        document.getElementById("scanTime").innerHTML = new Date().toLocaleString();
-
-                        document.getElementById("status").innerHTML =
-                            "Attendance Recorded Successfully";
-
-                    } else {
-
-                        document.getElementById("studentID").innerHTML = decodedText;
-                        document.getElementById("studentName").innerHTML = "Student Not Found";
-                        document.getElementById("studentGrade").innerHTML = "-";
-                        document.getElementById("attendanceStatus").innerHTML = "Invalid";
-                        document.getElementById("scanTime").innerHTML = "";
-
-                        document.getElementById("status").innerHTML =
-                            "Student Not Found";
-                    }
-
-                    document.getElementById("resultCard").style.display = "block";
-
-                })
-                .catch(function (error) {
-
-                    console.error(error);
-
-                    document.getElementById("status").innerHTML =
-                        "Database Connection Error";
-
-                });
-
-        },
-
-        // Ignore scan errors
-        function (errorMessage) {
-            // Do nothing
+        onScanSuccess,
+        function () {
+            // Ignore scan errors
         }
+    ).then(() => {
 
-    ).catch(function (error) {
+        scannerRunning = true;
+        document.getElementById("status").innerHTML = "Ready to scan.";
 
-        console.error(error);
+    }).catch(err => {
 
-        document.getElementById("status").innerHTML = "Camera Error";
+        console.error(err);
+        document.getElementById("status").innerHTML = "Unable to open camera.";
+
+    });
+
+}
+
+function onScanSuccess(decodedText) {
+
+    if (!scannerRunning) return;
+
+    scannerRunning = false;
+
+    document.getElementById("status").innerHTML = "Checking student...";
+
+    html5QrCode.stop().then(() => {
+
+        fetch(databaseURL + "?id=" + encodeURIComponent(decodedText))
+
+            .then(response => response.json())
+
+            .then(student => {
+
+                document.getElementById("resultCard").style.display = "block";
+
+                if (student.found) {
+
+                    document.getElementById("studentID").innerHTML = student.id;
+                    document.getElementById("studentName").innerHTML = student.name;
+                    document.getElementById("studentGrade").innerHTML = student.grade;
+                    document.getElementById("attendanceStatus").innerHTML = student.attendance || "Present";
+                    document.getElementById("scanTime").innerHTML = new Date().toLocaleString();
+                    document.getElementById("status").innerHTML = "Attendance recorded successfully.";
+
+                } else {
+
+                    document.getElementById("studentID").innerHTML = decodedText;
+                    document.getElementById("studentName").innerHTML = "Student not found";
+                    document.getElementById("studentGrade").innerHTML = "-";
+                    document.getElementById("attendanceStatus").innerHTML = "Invalid";
+                    document.getElementById("scanTime").innerHTML = "-";
+                    document.getElementById("status").innerHTML = "Student not found.";
+
+                }
+
+            })
+
+            .catch(err => {
+
+                console.error(err);
+                document.getElementById("status").innerHTML = "Database connection error.";
+
+            });
 
     });
 
@@ -100,25 +94,15 @@ function startScanner() {
 
 function stopScanner() {
 
-    if (html5QrCode) {
-
-        html5QrCode.stop()
-            .then(function () {
-
-                html5QrCode.clear();
-
-                html5QrCode = null;
-
-                document.getElementById("status").innerHTML =
-                    "Scanner Stopped";
-
-            })
-            .catch(function (err) {
-
-                console.error(err);
-
-            });
-
+    if (!html5QrCode || !scannerRunning) {
+        return;
     }
+
+    html5QrCode.stop().then(() => {
+
+        scannerRunning = false;
+        document.getElementById("status").innerHTML = "Scanner stopped.";
+
+    }).catch(err => console.error(err));
 
 }
