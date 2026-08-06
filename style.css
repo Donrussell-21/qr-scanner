@@ -1,29 +1,32 @@
 body{
 
-    background:#f4f7fb;
+background:#f4f7fb;
 
 }
+
 
 #reader{
 
-    width:100%;
+width:100%;
 
-    max-width:500px;
+max-width:500px;
 
-    margin:auto;
+margin:auto;
 
 }
+
 
 .card{
 
-    border-radius:15px;
+border-radius:15px;
 
 }
 
+
 button{
 
-    width:180px;
+width:180px;
 
-    margin:5px;
+margin:5px;
 
 }
