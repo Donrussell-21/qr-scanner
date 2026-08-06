@@ -1,7 +1,13 @@
 let html5QrCode = null;
 
 
+// YOUR GOOGLE APPS SCRIPT URL
+const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec";
+
+
+
 function startScanner() {
+
 
     document.getElementById("status").innerHTML =
         "Starting camera...";
@@ -10,11 +16,13 @@ function startScanner() {
     html5QrCode = new Html5Qrcode("reader");
 
 
+
     html5QrCode.start(
 
         {
             facingMode: "environment"
         },
+
 
         {
             fps: 10,
@@ -25,44 +33,99 @@ function startScanner() {
         function(decodedText) {
 
 
-            console.log("QR:", decodedText);
+            console.log("QR ID:", decodedText);
 
 
-            let data = decodedText.split("-");
+
+            // Search student in Google Sheet
+
+            fetch(databaseURL + "?id=" + decodedText)
 
 
-            document.getElementById("studentID").innerHTML =
-                data[0] || "Unknown";
+            .then(response => response.json())
 
 
-            document.getElementById("studentName").innerHTML =
-                data[1] || "Unknown";
+            .then(student => {
 
 
-            document.getElementById("attendanceStatus").innerHTML =
-                "Present";
+
+                if(student.found){
 
 
-            document.getElementById("scanTime").innerHTML =
-                new Date().toLocaleString();
+                    document.getElementById("studentID").innerHTML =
+                        student.id;
 
 
-            document.getElementById("status").innerHTML =
-                "Attendance Recorded";
+                    document.getElementById("studentName").innerHTML =
+                        student.name;
+
+
+
+                    document.getElementById("attendanceStatus").innerHTML =
+                        "Present";
+
+
+
+                    document.getElementById("scanTime").innerHTML =
+                        new Date().toLocaleString();
+
+
+
+                    document.getElementById("status").innerHTML =
+                        "Attendance Recorded";
+
+
+                }
+
+                else{
+
+
+                    document.getElementById("studentID").innerHTML =
+                        decodedText;
+
+
+                    document.getElementById("studentName").innerHTML =
+                        "Student Not Found";
+
+
+                    document.getElementById("attendanceStatus").innerHTML =
+                        "Invalid";
+
+
+                }
+
+
+
+            })
+
+
+            .catch(error => {
+
+
+                console.log(error);
+
+
+                document.getElementById("status").innerHTML =
+                    "Database Error";
+
+
+            });
+
 
 
         },
 
 
-        function(errorMessage) {
+        function(errorMessage){
 
-            // ignore scanning errors
+            // Ignore scanning errors
 
         }
 
     )
 
-    .catch(function(error) {
+
+    .catch(function(error){
 
 
         document.getElementById("status").innerHTML =
@@ -72,20 +135,23 @@ function startScanner() {
     });
 
 
+
 }
 
 
 
 
-function stopScanner() {
+
+function stopScanner(){
 
 
-    if(html5QrCode) {
+    if(html5QrCode){
 
 
         html5QrCode.stop()
 
-        .then(function() {
+
+        .then(() => {
 
 
             html5QrCode.clear();
@@ -95,15 +161,8 @@ function stopScanner() {
                 "Scanner stopped";
 
 
-        })
-
-        .catch(function(error) {
-
-
-            console.log(error);
-
-
         });
+
 
 
     }
