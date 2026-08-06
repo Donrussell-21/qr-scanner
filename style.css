@@ -188,3 +188,39 @@ button {
     transform: none !important;
     -webkit-transform: none !important;
 }
+.result-card {
+    margin-top: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.result-card h3 {
+    text-align: center;
+    color: #0b7a75;
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row strong {
+    color: #333;
+}
+
+.info-row span {
+    color: #555;
+    font-weight: 500;
+}
