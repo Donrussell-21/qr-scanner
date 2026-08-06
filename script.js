@@ -1,18 +1,21 @@
-let html5QrCode = null;
-
-
-const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec";
-
-
+let html5QrCode;
 
 function startScanner() {
 
-
-    document.getElementById("status").innerHTML =
+    document.getElementById("scanMessage").innerHTML =
         "Starting camera...";
 
 
     html5QrCode = new Html5Qrcode("reader");
+
+
+    const config = {
+        fps: 10,
+        qrbox: {
+            width: 250,
+            height: 250
+        }
+    };
 
 
     html5QrCode.start(
@@ -21,136 +24,151 @@ function startScanner() {
             facingMode: "environment"
         },
 
+        config,
 
-        {
-            fps: 10,
-            qrbox: 250
+
+        qrCodeMessage => {
+
+            console.log("QR Code:", qrCodeMessage);
+
+
+            document.getElementById("scanMessage").innerHTML =
+            `
+            <div class="student-info">
+                <p><strong>QR Data:</strong> ${qrCodeMessage}</p>
+            </div>
+            `;
+
+
+            // Stop scanner after successful scan
+            stopScanner();
+
+
+            // Send QR ID to Google Apps Script
+            checkStudent(qrCodeMessage);
+
         },
 
 
-        function(decodedText) {
+        errorMessage => {
 
-
-            console.log("Scanned ID:", decodedText);
-
-
-
-            fetch(databaseURL + "?id=" + decodedText)
-
-
-            .then(response => response.json())
-
-
-            .then(student => {
-
-
-                console.log("Database Result:", student);
-
-
-
-                if(student.found){
-
-
-                    document.getElementById("studentID").innerHTML =
-                        student.id;
-
-
-                    document.getElementById("studentName").innerHTML =
-                        student.name;
-
-
-                    document.getElementById("attendanceStatus").innerHTML =
-                        "Present";
-
-
-                }
-
-
-                else{
-
-
-                    document.getElementById("studentID").innerHTML =
-                        decodedText;
-
-
-                    document.getElementById("studentName").innerHTML =
-                        "Student Not Found";
-
-
-                    document.getElementById("attendanceStatus").innerHTML =
-                        "Invalid";
-
-
-                }
-
-
-
-                document.getElementById("scanTime").innerHTML =
-                    new Date().toLocaleString();
-
-
-
-            })
-
-
-            .catch(error => {
-
-
-                console.log(error);
-
-
-                document.getElementById("status").innerHTML =
-                    "Database Error";
-
-
-            });
-
-
+            // Ignore continuous scan errors
 
         }
 
-
     )
 
+    .catch(err => {
 
-    .catch(error => {
+        console.error(err);
 
-
-        document.getElementById("status").innerHTML =
-            "Camera Error: " + error;
-
+        document.getElementById("scanMessage").innerHTML =
+        `
+        <div class="error">
+        Camera error: ${err}
+        </div>
+        `;
 
     });
 
+}
+
+
+
+function stopScanner() {
+
+
+    if(html5QrCode){
+
+        html5QrCode.stop()
+
+        .then(() => {
+
+            html5QrCode.clear();
+
+            console.log("Scanner stopped");
+
+        })
+
+        .catch(err => {
+
+            console.log(err);
+
+        });
+
+    }
 
 }
 
 
 
 
-
-function stopScanner(){
-
-
-    if(html5QrCode){
+function checkStudent(studentID){
 
 
-        html5QrCode.stop()
-
-        .then(()=>{
-
-
-            html5QrCode.clear();
+    const url =
+    "YOUR_GOOGLE_SCRIPT_WEB_APP_URL?id="
+    + encodeURIComponent(studentID);
 
 
-            document.getElementById("status").innerHTML =
-                "Scanner stopped";
+
+    fetch(url)
+
+    .then(response => response.json())
+
+    .then(data => {
 
 
-        });
+        console.log(data);
 
 
-    }
+        if(data.found){
+
+
+            document.getElementById("scanMessage").innerHTML =
+
+            `
+            <div class="student-info">
+
+            <p><strong>Name:</strong> ${data.name}</p>
+
+            <p><strong>ID:</strong> ${data.id}</p>
+
+            <p class="success">
+            Attendance Recorded
+            </p>
+
+            </div>
+            `;
+
+
+        }
+
+        else {
+
+
+            document.getElementById("scanMessage").innerHTML =
+
+            `
+            <div class="error">
+
+            Student ID not found
+
+            </div>
+            `;
+
+
+        }
+
+
+    })
+
+
+    .catch(error=>{
+
+        console.error(error);
+
+    });
 
 
 }
