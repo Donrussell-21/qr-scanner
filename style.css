@@ -1,1 +1,136 @@
+body{
 
+    background:#f4f7fb;
+
+    font-family: Arial, sans-serif;
+
+}
+
+
+/* QR SCANNER AREA */
+
+#reader{
+
+    width:100%;
+
+    max-width:500px;
+
+    margin:auto;
+
+}
+
+
+#reader video{
+
+    width:100% !important;
+
+    border-radius:15px;
+
+}
+
+
+
+/* CARD DESIGN */
+
+.card{
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+}
+
+
+
+/* CARD HEADER */
+
+.card-header{
+
+    font-weight:bold;
+
+}
+
+
+
+/* BUTTON DESIGN */
+
+button{
+
+    width:180px;
+
+    margin:5px;
+
+    border-radius:10px;
+
+}
+
+
+
+/* STUDENT DETAILS PANEL */
+
+#studentDetails{
+
+    min-height:300px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:20px;
+
+}
+
+
+
+/* STUDENT INFO */
+
+.student-info{
+
+    width:100%;
+
+    text-align:left;
+
+}
+
+
+
+.student-info h3{
+
+    margin-bottom:20px;
+
+}
+
+
+
+.student-info p{
+
+    font-size:18px;
+
+    margin:8px 0;
+
+}
+
+
+
+/* MOBILE RESPONSIVE */
+
+@media(max-width:768px){
+
+
+    button{
+
+        width:100%;
+
+    }
+
+
+    #reader{
+
+        max-width:100%;
+
+    }
+
+
+}
