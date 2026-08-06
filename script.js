@@ -22,28 +22,31 @@ function startScanner() {
             }
         },
 
-        // QR Scan Success
+        // QR Code Successfully Scanned
         function (decodedText) {
+
+            // Stop scanning to avoid multiple scans
+            html5QrCode.stop();
 
             document.getElementById("status").innerHTML = "Checking database...";
 
+            console.log("Scanned QR:", decodedText);
+
             fetch(databaseURL + "?id=" + encodeURIComponent(decodedText))
+                .then(function (response) {
 
-                .then(function(response){
-
-                    if(!response.ok){
+                    if (!response.ok) {
                         throw new Error("Server Error");
                     }
 
                     return response.json();
 
                 })
-
-                .then(function(student){
+                .then(function (student) {
 
                     console.log(student);
 
-                    if(student.found){
+                    if (student.found) {
 
                         document.getElementById("studentID").innerHTML = student.id;
                         document.getElementById("studentName").innerHTML = student.name;
@@ -51,11 +54,10 @@ function startScanner() {
                         document.getElementById("attendanceStatus").innerHTML = "Present";
                         document.getElementById("scanTime").innerHTML = new Date().toLocaleString();
 
-                        document.getElementById("status").innerHTML = "Attendance Recorded Successfully";
+                        document.getElementById("status").innerHTML =
+                            "Attendance Recorded Successfully";
 
-                        document.getElementById("resultCard").style.display = "block";
-
-                    }else{
+                    } else {
 
                         document.getElementById("studentID").innerHTML = decodedText;
                         document.getElementById("studentName").innerHTML = "Student Not Found";
@@ -63,44 +65,27 @@ function startScanner() {
                         document.getElementById("attendanceStatus").innerHTML = "Invalid";
                         document.getElementById("scanTime").innerHTML = "";
 
-                        document.getElementById("status").innerHTML = "Student Not Found";
-
-                        document.getElementById("resultCard").style.display = "block";
-
+                        document.getElementById("status").innerHTML =
+                            "Student Not Found";
                     }
 
-                })
+                    document.getElementById("resultCard").style.display = "block";
 
-                .catch(function(error){
+                })
+                .catch(function (error) {
 
                     console.error(error);
 
-                    document.getElementById("status").innerHTML = "Database Connection Error";
+                    document.getElementById("status").innerHTML =
+                        "Database Connection Error";
 
                 });
 
         },
 
         // Ignore scan errors
-        function(errorMessage){
-            // Ignore
-        }
-
-    ).catch(function(error){
-
-        console.error(error);
-
-        document.getElementById("status").innerHTML = "Camera Error";
-
-    });
-
-}
-
-        },
-
-        // Ignore scan errors
         function (errorMessage) {
-            // console.log(errorMessage);
+            // Do nothing
         }
 
     ).catch(function (error) {
@@ -122,12 +107,15 @@ function stopScanner() {
 
                 html5QrCode.clear();
 
-                document.getElementById("status").innerHTML = "Scanner Stopped";
+                html5QrCode = null;
+
+                document.getElementById("status").innerHTML =
+                    "Scanner Stopped";
 
             })
             .catch(function (err) {
 
-                console.log(err);
+                console.error(err);
 
             });
 
