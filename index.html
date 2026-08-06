@@ -85,6 +85,46 @@
 
     <script src="script.js"></script>
 
+<!-- QR Scanner Area -->
+<div id="reader" style="width:300px;margin:auto;"></div>
+
+<button onclick="startScanner()">Start Scanner</button>
+<button onclick="stopScanner()">Stop Scanner</button>
+
+<p id="status">Waiting for QR scan...</p>
+
+<!-- Student Information Display -->
+<div id="studentInfo" class="result-card">
+    <h3>Scanned Student Information</h3>
+
+    <div class="info-row">
+        <strong>Student ID:</strong>
+        <span id="studentID">-</span>
+    </div>
+
+    <div class="info-row">
+        <strong>Student Name:</strong>
+        <span id="studentName">-</span>
+    </div>
+
+    <div class="info-row">
+        <strong>Grade / Section:</strong>
+        <span id="studentGrade">-</span>
+    </div>
+
+    <div class="info-row">
+        <strong>Attendance Status:</strong>
+        <span id="attendanceStatus">-</span>
+    </div>
+
+    <div class="info-row">
+        <strong>Scan Time:</strong>
+        <span id="scanTime">-</span>
+    </div>
+</div>
+    
+
+    
 </body>
 
 </html>
