@@ -42,6 +42,8 @@ function startScanner() {
 }
 
 function onScanSuccess(decodedText) {
+    console.log("QR Detected:", decodedText);
+alert("QR: " + decodedText);
 
     if (!scannerRunning) return;
 
