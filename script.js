@@ -21,8 +21,9 @@ function startScanner() {
         },
 
         {
-            fps: 10,
-            qrbox: 250
+            fps: 20,
+            qrbox: { width: 300, height: 300 },
+            aspectRatio: 1.0
         },
 
 
