@@ -1,157 +1,114 @@
-// ======================================
-// QR Attendance Scanner
-// ======================================
-
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyvAr2oR5aiI-8PGewzcWkh545qMm3J3bohOx5CM3FdWOn9OBEGYV6QNvsifLvZPVQGng/exec";
-
 let html5QrCode;
-let scannerRunning = false;
 
-// =========================
-// Start Scanner
-// =========================
+
 function startScanner() {
 
-    if (scannerRunning) return;
+
+    document.getElementById("status").innerHTML =
+        "Starting camera...";
+
 
     html5QrCode = new Html5Qrcode("reader");
 
-    Html5Qrcode.getCameras()
-        .then(cameras => {
 
-            if (cameras.length === 0) {
+    html5QrCode.start(
 
-                document.getElementById("status").className = "alert alert-danger";
-                document.getElementById("status").innerHTML = "No webcam detected.";
+        {
+            facingMode: "environment"
+        },
 
-                return;
-            }
+        {
+            fps: 10,
+            qrbox: 250
+        },
 
-            scannerRunning = true;
 
-            html5QrCode.start(
+        function(decodedText) {
 
-                cameras[0].id,
 
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
+            console.log(decodedText);
 
-                onScanSuccess
 
-            );
+            let studentData = decodedText.split("-");
 
-        })
 
-        .catch(error => {
+            document.getElementById("studentID").innerHTML =
+                studentData[0] || "Unknown";
 
-            document.getElementById("status").className = "alert alert-danger";
-            document.getElementById("status").innerHTML = error;
 
-        });
+            document.getElementById("studentName").innerHTML =
+                studentData[1] || "Unknown";
 
-}
 
-// =========================
-// Stop Scanner
-// =========================
-function stopScanner() {
+            document.getElementById("attendanceStatus").innerHTML =
+                "Present";
 
-    if (!scannerRunning) return;
 
-    html5QrCode.stop().then(() => {
+            let now = new Date();
 
-        scannerRunning = false;
 
-    });
+            document.getElementById("scanTime").innerHTML =
+                now.toLocaleString();
 
-}
 
-// =========================
-// QR Detected
-// =========================
-function onScanSuccess(decodedText) {
+            document.getElementById("status").innerHTML =
+                "Scan Successful";
 
-    stopScanner();
-
-    document.getElementById("status").className = "alert alert-warning";
-    document.getElementById("status").innerHTML = "Processing attendance...";
-
-    fetch(WEBAPP_URL, {
-
-        method: "POST",
-
-        headers: {
-
-            "Content-Type": "application/json"
 
         },
 
-        body: JSON.stringify({
 
-            studentID: decodedText
+        function(errorMessage) {
+
+            // scanning errors ignored
+
+        }
+
+    )
+
+    .catch(function(error){
+
+        document.getElementById("status").innerHTML =
+            "Camera Error: " + error;
+
+    });
+
+
+}
+
+
+
+
+function stopScanner(){
+
+
+    if(html5QrCode){
+
+
+        html5QrCode.stop()
+
+        .then(function(){
+
+
+            html5QrCode.clear();
+
+
+            document.getElementById("status").innerHTML =
+                "Scanner stopped";
+
 
         })
 
-    })
+        .catch(function(error){
 
-    .then(response => response.json())
 
-    .then(result => {
+            console.log(error);
 
-        if(result.success){
 
-            document.getElementById("studentID").innerHTML =
-                result.student.studentID;
+        });
 
-            document.getElementById("studentName").innerHTML =
-                result.student.lastName + ", " +
-                result.student.firstName;
 
-            document.getElementById("attendanceStatus").innerHTML =
-                result.type;
+    }
 
-            document.getElementById("status").className =
-                "alert alert-success";
-
-            document.getElementById("status").innerHTML =
-                result.message;
-
-        }
-
-        else{
-
-            document.getElementById("status").className =
-                "alert alert-danger";
-
-            document.getElementById("status").innerHTML =
-                result.message;
-
-        }
-
-        setTimeout(function(){
-
-            startScanner();
-
-        },2000);
-
-    })
-
-    .catch(error=>{
-
-        document.getElementById("status").className =
-            "alert alert-danger";
-
-        document.getElementById("status").innerHTML =
-            error;
-
-        setTimeout(function(){
-
-            startScanner();
-
-        },2000);
-
-    });
 
 }
