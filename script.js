@@ -1,117 +1,152 @@
 let html5QrCode = null;
 
+
+const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec";
+
+
+
 function startScanner() {
 
-    document.getElementById("result").innerHTML = "Starting camera...";
+    document.getElementById("status").innerHTML =
+        "Starting camera...";
+
 
     html5QrCode = new Html5Qrcode("reader");
 
-    Html5Qrcode.getCameras()
-        .then(cameras => {
 
-            if (cameras.length === 0) {
-                document.getElementById("result").innerHTML =
-                    "No camera found.";
-                return;
-            }
+    html5QrCode.start(
 
-            return html5QrCode.start(
-                cameras[0].id,
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
+        {
+            facingMode: "environment"
+        },
 
-                function (decodedText) {
+        {
+            fps: 10,
+            qrbox: 250
+        },
 
-                    stopScanner();
 
-                    checkStudent(decodedText);
+        function(decodedText) {
 
-                },
 
-                function () {
-                    // Ignore scan errors
+            console.log("Scanned ID:", decodedText);
+
+
+
+            fetch(databaseURL + "?id=" + decodedText)
+
+
+            .then(response => response.json())
+
+
+            .then(student => {
+
+
+                console.log(student);
+
+
+
+                if(student.found){
+
+
+                    document.getElementById("studentID").innerHTML =
+                        student.id;
+
+
+                    document.getElementById("studentName").innerHTML =
+                        student.name;
+
+
+                    document.getElementById("attendanceStatus").innerHTML =
+                        "Present";
+
+
+                    document.getElementById("scanTime").innerHTML =
+                        new Date().toLocaleString();
+
+
+                    document.getElementById("status").innerHTML =
+                        "Attendance Recorded";
+
+
                 }
 
-            );
+                else{
 
-        })
 
-        .catch(err => {
+                    document.getElementById("studentID").innerHTML =
+                        decodedText;
 
-            console.error(err);
 
-            document.getElementById("result").innerHTML =
-                "Camera Error: " + err;
+                    document.getElementById("studentName").innerHTML =
+                        "Student Not Found";
 
-        });
 
-}
+                    document.getElementById("attendanceStatus").innerHTML =
+                        "Invalid";
 
-function stopScanner() {
 
-    if (html5QrCode) {
+                }
 
-        html5QrCode.stop()
-
-            .then(() => {
-
-                html5QrCode.clear();
-
-                html5QrCode = null;
 
             })
 
-            .catch(console.error);
 
-    }
+            .catch(error => {
+
+
+                console.log(error);
+
+
+                document.getElementById("status").innerHTML =
+                    "Database Connection Error";
+
+
+            });
+
+
+
+        }
+
+
+    )
+
+    .catch(error => {
+
+
+        document.getElementById("status").innerHTML =
+            "Camera Error";
+
+
+    });
+
 
 }
 
-function checkStudent(studentID) {
 
-    const url =
-    "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0iqgVImo01GQPumqS1xyDiSMAECfhgvDLDjU-YW6zIiWIdO_Tu2g/exec?id="
-    + encodeURIComponent(studentID);
 
-    console.log("Request URL:", url);
+function stopScanner(){
 
-    fetch(url)
-        .then(response => {
-            console.log("HTTP Status:", response.status);
-            return response.text();
-        })
-        .then(text => {
 
-            console.log("Server Response:", text);
+    if(html5QrCode){
 
-            const data = JSON.parse(text);
 
-            if(data.found){
+        html5QrCode.stop()
 
-                document.getElementById("result").innerHTML = `
-                    <h3>${data.name}</h3>
-                    <p>${data.id}</p>
-                    <p style="color:green;">Attendance Recorded</p>
-                `;
+        .then(()=>{
 
-            }else{
 
-                document.getElementById("result").innerHTML =
-                    "Student not found.";
+            html5QrCode.clear();
 
-            }
 
-        })
-        .catch(error => {
+            document.getElementById("status").innerHTML =
+                "Scanner stopped";
 
-            console.error("Fetch Error:", error);
-
-            document.getElementById("result").innerHTML = `
-                <pre>${error}</pre>
-            `;
 
         });
+
+
+    }
+
 
 }
