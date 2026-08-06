@@ -3,16 +3,13 @@ let html5QrCode = null;
 
 function startScanner() {
 
-    alert("Start Scanner button works!");
-
-    document.getElementById("scanMessage").innerHTML =
-        "Starting camera...";
-
-    html5QrCode = new Html5Qrcode("reader");
-
-    ...
+    function startScanner() {
+    alert("Button works!");
 }
 
+function stopScanner() {
+    alert("Stop works!");
+}
 
 
 function stopScanner(){
