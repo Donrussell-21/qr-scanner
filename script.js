@@ -7,7 +7,6 @@ const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0i
 
 function startScanner() {
 
-
     document.getElementById("status").innerHTML =
         "Starting camera...";
 
@@ -20,7 +19,6 @@ function startScanner() {
         {
             facingMode: "environment"
         },
-
 
         {
             fps: 10,
@@ -44,7 +42,7 @@ function startScanner() {
             .then(student => {
 
 
-                console.log("Database Result:", student);
+                console.log(student);
 
 
 
@@ -63,8 +61,15 @@ function startScanner() {
                         "Present";
 
 
-                }
+                    document.getElementById("scanTime").innerHTML =
+                        new Date().toLocaleString();
 
+
+                    document.getElementById("status").innerHTML =
+                        "Attendance Recorded";
+
+
+                }
 
                 else{
 
@@ -84,12 +89,6 @@ function startScanner() {
                 }
 
 
-
-                document.getElementById("scanTime").innerHTML =
-                    new Date().toLocaleString();
-
-
-
             })
 
 
@@ -100,7 +99,7 @@ function startScanner() {
 
 
                 document.getElementById("status").innerHTML =
-                    "Database Error";
+                    "Database Connection Error";
 
 
             });
@@ -112,20 +111,17 @@ function startScanner() {
 
     )
 
-
     .catch(error => {
 
 
         document.getElementById("status").innerHTML =
-            "Camera Error: " + error;
+            "Camera Error";
 
 
     });
 
 
 }
-
-
 
 
 
