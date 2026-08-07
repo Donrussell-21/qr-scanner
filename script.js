@@ -1,4 +1,3 @@
-alert("NEW SCRIPT LOADED");
 
 let html5QrCode = null;
 let scannerRunning = false;
