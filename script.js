@@ -6,39 +6,26 @@ const databaseURL = "https://script.google.com/macros/s/AKfycbw_-oNTjvLFL6tw2y0i
 
 function startScanner() {
 
-    if (scannerRunning) {
-        return;
-    }
-
-    document.getElementById("status").innerHTML = "Starting camera...";
-
     if (!html5QrCode) {
         html5QrCode = new Html5Qrcode("reader");
     }
 
     html5QrCode.start(
-        {
-            facingMode: "environment"
-        },
+        { facingMode: "environment" },
         {
             fps: 10,
             qrbox: 250
         },
-        onScanSuccess,
-        function () {
-            // Ignore scan errors
+        function(decodedText){
+
+            alert("QR Detected: " + decodedText);
+            console.log(decodedText);
+
+        },
+        function(error){
+            // ignore
         }
-    ).then(() => {
-
-        scannerRunning = true;
-        document.getElementById("status").innerHTML = "Ready to scan.";
-
-    }).catch(err => {
-
-        console.error(err);
-        document.getElementById("status").innerHTML = "Unable to open camera.";
-
-    });
+    );
 
 }
 
