@@ -14,7 +14,8 @@ function startScanner() {
     if (scannerRunning) return;
 
     if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode =
+            new Html5Qrcode("reader");
     }
 
     html5QrCode.start(
@@ -118,47 +119,51 @@ function onScanSuccess(decodedText) {
                     student.grade;
 
 
-                document.getElementById("attendanceStatus").innerHTML =
-                    student.attendance;
+                /*****************************************
+                 * DISPLAY STATUS
+                 *
+                 * STATUS SHOULD NOW BE:
+                 *
+                 * Present
+                 *
+                 *****************************************/
 
+                document.getElementById("attendanceStatus").innerHTML =
+                    student.status ||
+                    student.attendance ||
+                    "Present";
+
+
+                /*****************************************
+                 * DISPLAY TIME
+                 *****************************************/
 
                 document.getElementById("scanTime").innerHTML =
                     student.time;
 
 
                 /*****************************************
-                 * TIME IN
+                 * DISPLAY SCAN RESULT
+                 *****************************************/
+
+                const status =
+                    student.status ||
+                    student.attendance ||
+                    "";
+
+
+                const remarks =
+                    student.remarks ||
+                    "";
+
+
+                /*****************************************
+                 * DUPLICATE
                  *****************************************/
 
                 if (
-                    student.attendance === "Time In"
-                ) {
-
-                    document.getElementById("status").innerHTML =
-                        "🟢 TIME IN — Attendance Recorded";
-
-                }
-
-
-                /*****************************************
-                 * LATE
-                 *****************************************/
-
-                else if (
-                    student.attendance === "Late"
-                ) {
-
-                    document.getElementById("status").innerHTML =
-                        "🟠 LATE — Attendance Recorded";
-
-                }
-
-
-                /*****************************************
-                 * DUPLICATE SCAN
-                 *****************************************/
-
-                else if (
+                    student.duplicate === true ||
+                    status === "Already Timed In" ||
                     student.attendance === "Already Timed In"
                 ) {
 
@@ -169,7 +174,51 @@ function onScanSuccess(decodedText) {
 
 
                 /*****************************************
-                 * OTHER SUCCESS RESPONSE
+                 * PRESENT + LATE
+                 *****************************************/
+
+                else if (
+                    status === "Present" &&
+                    remarks === "Late"
+                ) {
+
+                    document.getElementById("status").innerHTML =
+                        "🟠 PRESENT — LATE";
+
+                }
+
+
+                /*****************************************
+                 * PRESENT + ON TIME
+                 *****************************************/
+
+                else if (
+                    status === "Present" &&
+                    remarks === "On Time"
+                ) {
+
+                    document.getElementById("status").innerHTML =
+                        "🟢 PRESENT — ON TIME";
+
+                }
+
+
+                /*****************************************
+                 * PRESENT
+                 *****************************************/
+
+                else if (
+                    status === "Present"
+                ) {
+
+                    document.getElementById("status").innerHTML =
+                        "🟢 PRESENT — Attendance Recorded";
+
+                }
+
+
+                /*****************************************
+                 * FALLBACK
                  *****************************************/
 
                 else {
@@ -178,7 +227,6 @@ function onScanSuccess(decodedText) {
                         "Attendance Recorded";
 
                 }
-
 
             }
 
@@ -214,7 +262,8 @@ function onScanSuccess(decodedText) {
 
 
                 document.getElementById("status").innerHTML =
-                    "🔴 " + (
+                    "🔴 " +
+                    (
                         student.message ||
                         "Student Not Found"
                     );
